@@ -1,0 +1,78 @@
+# provider "aws" {
+#     region="us-west-2"
+#     access_key=""
+#     secret_key="//"
+# }
+#variables
+
+# variable cidr_subnet-1 {
+#   type        = string
+#   description = "cidr of subnet-1"
+# #   default= "10.0.10.0/24"
+# }
+
+variable env {
+  type        = string
+  description = "environment"
+}
+
+# variable cidr_blocks {
+#       description = "cidr of vpc and cidr of subnet-1 , this is list of var"
+
+# }
+
+# variable cidr_blocks{
+#      description = "cidr of vpc and cidr of subnet-1 , this is list of objects"
+#     #  type=list(object({
+#     #     cidr_block= string
+#     #     name= string
+#     #  }))
+# }
+
+resource "aws_vpc" "my-vpc"{
+    cidr_block= "10.0.0.0/16"   #var.cidr_blocks[0]    #var.cidr_blocks[0].cidr_block    
+    tags={
+
+      Nourhan= "yes"
+    #   Name=var.env
+    #   Name=var.cidr_blocks[0].name
+    }
+   
+}
+resource "aws_subnet" "subnet-1"{
+    vpc_id= aws_vpc.my-vpc.id
+    cidr_block="10.0.0.0/24" #var.cidr_blocks[1]   #var.cidr_blocks[1].cidr_block       #var.cidr_subnet-1   
+    availability_zone="us-west-2a"
+    tags={
+
+    #   Name=var.cidr_blocks[1].name
+    }
+}
+
+
+data "aws_vpc" "existing-vpc"{
+    default= true
+}
+resource "aws_subnet" "subnet-2"{
+    vpc_id=data.aws_vpc.existing-vpc.id
+    cidr_block="172.31.100.0/24"
+    availability_zone="us-west-2b"
+    tags={
+
+      Name="default-subnet2"
+    }
+}
+
+output "aws_vpc-id"  {
+    value= aws_vpc.my-vpc.id
+}
+
+output "aws_vpc_cidr" {
+    value= aws_subnet.subnet-1.cidr_block
+}
+
+output "environment" {
+    # value= aws_vpc.my-vpc.tags["Name"]
+      value=var.env
+}
+
